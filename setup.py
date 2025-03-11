@@ -24,7 +24,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'colorizer = thermal_image_colorizer.colorizer:main'
+            'colorizer = thermal_image_colorizer.colorizer:main',
+            'flip_image = thermal_image_colorizer.flip_image:main'
         ],
     },
 )

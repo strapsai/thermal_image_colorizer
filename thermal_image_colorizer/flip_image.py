@@ -5,7 +5,7 @@ from cv_bridge import CvBridge
 import cv2
 from std_msgs.msg import String
 
-class ColormapImagePublisher(Node):
+class ImageFlipper(Node):
     def __init__(self):
         super().__init__('colormap_image_publisher')
         self.bridge = CvBridge()
@@ -46,33 +46,13 @@ class ColormapImagePublisher(Node):
         try:
             # Convert the ROS image message to a CV2 image
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
-            cv_image = cv2.flip(cv_image, 1)
-
-            # Apply colormap
-            if self.colormap_name == "Grayscale":
-                # For grayscale, we don't apply a colormap, but convert to RGB
-                colored_img = cv2.cvtColor(cv_image, cv2.COLOR_GRAY2BGR)
-            else:
-                # Map colormap name to OpenCV constant
-                colormap_map = {
-                    "Inferno": cv2.COLORMAP_INFERNO,
-                    "Jet": cv2.COLORMAP_JET,
-                    "Viridis": cv2.COLORMAP_VIRIDIS,
-                    "Rainbow": cv2.COLORMAP_RAINBOW
-                }
-                colormap = colormap_map.get(self.colormap_name, cv2.COLORMAP_INFERNO)
-                colored_img = cv2.applyColorMap(cv_image, colormap)
+            cv_image = cv2.rotate(cv_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
             # Convert the colored image back to ROS message
-            colormapped_image_msg = self.bridge.cv2_to_imgmsg(colored_img, encoding='bgr8')
+            image_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding='mono8')
 
             # Publish the colormapped image
-            self.colormapped_image_publisher.publish(colormapped_image_msg)
-
-            # Publish the colormap name (optional)
-            colormap_name_msg = String()
-            colormap_name_msg.data = self.colormap_name
-            self.colormap_name_publisher.publish(colormap_name_msg)
+            self.colormapped_image_publisher.publish(image_msg)
 
         except Exception as e:
             self.get_logger().error(f"Error processing image: {e}")
@@ -80,7 +60,7 @@ class ColormapImagePublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = ColormapImagePublisher()
+    node = ImageFlipper()
     rclpy.spin(node)
     rclpy.shutdown()
 
