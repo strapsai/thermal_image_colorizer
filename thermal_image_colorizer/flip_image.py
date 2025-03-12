@@ -47,6 +47,7 @@ class ImageFlipper(Node):
             # Convert the ROS image message to a CV2 image
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
             cv_image = cv2.rotate(cv_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            cv_image = cv2.flip(cv_image, 1)
 
             # Convert the colored image back to ROS message
             image_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding='mono8')
